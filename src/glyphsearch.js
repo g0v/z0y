@@ -28,7 +28,7 @@ var GlyphSearch=React.createClass({
 	,render:function() {
 		return E("div",{},
 			E("span",{style:styles.logo},"零時字引"),
-			E("input",{ref:"tofind",size:3,style:styles.tofind, defaultValue:"木口",
+			E("input",{ref:"tofind",size:3,style:styles.tofind, defaultValue:"弗2",
 			  onChange:this.onchange,onKeyPress:this.onkeypress})
 		);
 	}
