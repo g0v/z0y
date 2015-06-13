@@ -8,16 +8,15 @@ create node_modules/idsdata/decompose.js
     cd node_modules/idsdata
     node gen
 
-
-build external data-bundle.js
+rebuild external data-bundle.js whenever node_modules/idsdata is changed.
 
     build-data
 
-build external react-bundle.js
+rebuild external react-bundle.js whenever react.js is changed.
 
     build-react
 
-build bundle.js
+rebuild bundle.js if any other js is changed.
 
     build
 

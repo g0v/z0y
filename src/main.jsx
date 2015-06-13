@@ -15,10 +15,9 @@ var maincomponent = React.createClass({
   },
   render: function() {
     return E("div",{},
-        E("h1",{},"零時字引"),
         E(GlyphSearch),
-        E(Candidates,{action:this.action}),
-        E(GlyphInfo,{glyph:this.state.glyph})
+        E(GlyphInfo,{glyph:this.state.glyph}),
+        E(Candidates,{action:this.action})
       )
   }
 });

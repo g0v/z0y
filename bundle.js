@@ -2162,25 +2162,63 @@ var Reflux=require("reflux");
 var ucs2string=require("glyphemesearch").ucs2string;
 var E=React.createElement;
 
-var styles={candidate:{fontSize:"150%"}};
+var styles={candidates:{outline:0}};
 
 var Candidates=React.createClass({displayName: "Candidates",
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
-		return {candidates:[]};
+		return {candidates:[],joined:""};
 	}
-	,getGlyphInfo:function(e) {
-		this.props.action("selectglyph",e.target.innerHTML);
-	}
-	,renderItem:function(item,idx) {
-		return React.createElement("button", {style: styles.candidate, 
-				onClick: this.getGlyphInfo}, ucs2string(item))
+	,joinCandidates:function(candidates) {
+		var o="";
+		for (var i=0;i<candidates.length;i++) {
+			o+=ucs2string(candidates[i]);
+		}
+		return o;
 	}
 	,onData:function(data) {
-		this.setState({candidates:data});
+		this.setState({candidates:data,joined:this.joinCandidates(data)});
+	}
+	,preventdefault:function(e) {
+		e.preventDefault();
+	}
+	,onkeydown:function(e) {
+		if ([8,46].indexOf(e.keyCode)>-1) this.preventdefault(e);
+	}
+	,isHighSurrogate:function(code) {
+		return code>=0xD800 && code<=0xDBFF;
+	}
+	,getGlyphInfo:function(glyph) {
+		this.props.action("selectglyph",glyph);
+	}
+	,onselect:function(e) {
+		var sel=document.getSelection();
+		var off=sel.focusOffset;
+		if (off<0||off>=this.state.joined.length) return;
+		var bytes=1;
+		if (this.isHighSurrogate(this.state.joined.charCodeAt(off))) bytes++;
+
+		//select a char for easy copy to clipboard
+		var range = document.createRange();
+		range.setStart(sel.focusNode, off);
+		range.setEnd(sel.focusNode, off+bytes);
+		sel.removeAllRanges();
+		sel.addRange(range);
+
+		var selChar=this.state.joined.substr(off,bytes);
+		this.getGlyphInfo(selChar);
+	}
+	,componentDidMount:function() {
+		//set contentEditable after mount,to prevent React warning
+		this.refs.candidates.getDOMNode().contentEditable=true;
 	}
 	,render:function() {
-		return E("div",{},this.state.candidates.map(this.renderItem));
+		return E("div",{ref:"candidates",
+			onKeyPress:this.preventdefault,
+			onPaste:this.preventdefault,
+			onKeyDown:this.onkeydown,
+			onMouseUp:this.onselect,
+			style:styles.candidates},this.state.joined);
 	}
 });
 module.exports=Candidates;
@@ -2202,6 +2240,7 @@ var actions=require("./actions");
 
 var E=React.createElement;
 var styles={
+	logo:{fontSize:"150%"},
 	tofind:{fontSize:"200%"}
 }
 var GlyphSearch=React.createClass({displayName: "GlyphSearch",
@@ -2219,6 +2258,7 @@ var GlyphSearch=React.createClass({displayName: "GlyphSearch",
 	}
 	,render:function() {
 		return E("div",{},
+			E("span",{style:styles.logo},"零時字引"),
 			E("input",{ size:3,style:styles.tofind, defaultValue:"木口",
 			  onChange:this.onchange,onKeyPress:this.onkeypress})
 		);
@@ -2243,10 +2283,9 @@ var maincomponent = React.createClass({displayName: "maincomponent",
   },
   render: function() {
     return E("div",{},
-        E("h1",{},"零時字引"),
         E(GlyphSearch),
-        E(Candidates,{action:this.action}),
-        E(GlyphInfo,{glyph:this.state.glyph})
+        E(GlyphInfo,{glyph:this.state.glyph}),
+        E(Candidates,{action:this.action})
       )
   }
 });
