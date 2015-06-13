@@ -1,0 +1,1 @@
+browserify -r idsdata/decompose > data-bundle.js

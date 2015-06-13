@@ -1,0 +1,1 @@
+browserify -r react -r react/addons -u react-native> react-bundle.js

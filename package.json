@@ -1,0 +1,20 @@
+{
+  "name": "z0y",
+  "description": "glyphemesearch",
+  "version": "0.0.1",
+  "main": "index.html",
+  "inject-js-start":"nwmain.js",
+  "single-instance":true,
+  "window": {
+    "toolbar": true,
+    "width": 1060,
+    "height": 700
+  },
+  "scripts" : {
+  },
+ "repository": 
+  {
+      "type": "git", 
+      "url": "https://github.com/g0v/z0y"
+  }  
+}
