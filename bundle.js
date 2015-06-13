@@ -2213,11 +2213,11 @@ module.exports=Candidates;
 var React=require("react");
 var getutf32=require("glyphemesearch").getutf32;
 var E=React.createElement;
-
+var styles={thechar:{fontSize:"300%"}};
 var GlyphInfo=React.createClass({displayName: "GlyphInfo",
 	render:function() {
 		var c="U+"+getutf32({widestring:this.props.glyph}).toString(16).toUpperCase();
-		return E("div",{},c);
+		return E("div",{},c,E("span",{style:styles.thechar},this.props.glyph));
 	}
 });
 module.exports=GlyphInfo;
@@ -2243,10 +2243,16 @@ var GlyphSearch=React.createClass({displayName: "GlyphSearch",
 			actions.search(e.target.value);
 		}
 	}
+	,componentDidMount:function() {
+		var that=this;
+		setTimeout(function(){
+			that.refs.tofind.getDOMNode().focus();
+		},500);
+	}
 	,render:function() {
 		return E("div",{},
 			E("span",{style:styles.logo},"零時字引"),
-			E("input",{ size:3,style:styles.tofind, defaultValue:"木口",
+			E("input",{ref:"tofind",size:3,style:styles.tofind, defaultValue:"木口",
 			  onChange:this.onchange,onKeyPress:this.onkeypress})
 		);
 	}
@@ -2261,7 +2267,7 @@ var E=React.createElement;
 
 var maincomponent = React.createClass({displayName: "maincomponent",
   getInitialState:function() {
-    return {glyph:""};
+    return {glyph:"　"};
   },
   action:function(act,p1,p2) {
     if (act=="selectglyph") {

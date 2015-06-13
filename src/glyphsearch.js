@@ -19,10 +19,16 @@ var GlyphSearch=React.createClass({
 			actions.search(e.target.value);
 		}
 	}
+	,componentDidMount:function() {
+		var that=this;
+		setTimeout(function(){
+			that.refs.tofind.getDOMNode().focus();
+		},500);
+	}
 	,render:function() {
 		return E("div",{},
 			E("span",{style:styles.logo},"零時字引"),
-			E("input",{ size:3,style:styles.tofind, defaultValue:"木口",
+			E("input",{ref:"tofind",size:3,style:styles.tofind, defaultValue:"木口",
 			  onChange:this.onchange,onKeyPress:this.onkeypress})
 		);
 	}

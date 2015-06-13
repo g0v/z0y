@@ -6,7 +6,7 @@ var E=React.createElement;
 
 var maincomponent = React.createClass({
   getInitialState:function() {
-    return {glyph:""};
+    return {glyph:"　"};
   },
   action:function(act,p1,p2) {
     if (act=="selectglyph") {
