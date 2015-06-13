@@ -6,14 +6,19 @@ var E=React.createElement;
 
 var maincomponent = React.createClass({
   getInitialState:function() {
-    return {};
+    return {glyph:""};
+  },
+  action:function(act,p1,p2) {
+    if (act=="selectglyph") {
+      this.setState({glyph:p1});
+    }
   },
   render: function() {
     return E("div",{},
         E("h1",{},"零時字引"),
         E(GlyphSearch),
-        E(Candidates),
-        E(GlyphInfo)
+        E(Candidates,{action:this.action}),
+        E(GlyphInfo,{glyph:this.state.glyph})
       )
   }
 });
