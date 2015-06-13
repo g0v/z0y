@@ -18,6 +18,7 @@ build external react-bundle.js
     build-react
 
 build bundle.js
+
     build
 
 serve index.html with webserver, node-webkit , or open directly with browser (file://)
