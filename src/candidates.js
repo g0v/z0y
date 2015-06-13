@@ -22,12 +22,6 @@ var Candidates=React.createClass({
 	,onData:function(data) {
 		this.setState({candidates:data,joined:this.joinCandidates(data)});
 	}
-	,preventdefault:function(e) {
-		e.preventDefault();
-	}
-	,onkeydown:function(e) {
-		if ([8,46].indexOf(e.keyCode)>-1) this.preventdefault(e);
-	}
 	,isHighSurrogate:function(code) {
 		return code>=0xD800 && code<=0xDBFF;
 	}
@@ -51,15 +45,8 @@ var Candidates=React.createClass({
 		var selChar=this.state.joined.substr(off,bytes);
 		this.getGlyphInfo(selChar);
 	}
-	,componentDidMount:function() {
-		//set contentEditable after mount,to prevent React warning
-		this.refs.candidates.getDOMNode().contentEditable=true;
-	}
 	,render:function() {
 		return E("div",{ref:"candidates",
-			onKeyPress:this.preventdefault,
-			onPaste:this.preventdefault,
-			onKeyDown:this.onkeydown,
 			onMouseUp:this.onselect,
 			style:styles.candidates},this.state.joined);
 	}
