@@ -3,10 +3,10 @@ var actions=require("./actions");
 var glyphemesearch=require("glyphemesearch");
 var store=Reflux.createStore({
 	listenables:actions
-	,onSearch:function(glypheme) {
+	,onSearch:function(glypheme,successor) {
 		//console.log("toggle",itemidx);
 		
-		this.trigger(glyphemesearch(glypheme));
+		this.trigger(glyphemesearch(glypheme,successor));
 	}
 });
 
