@@ -44,7 +44,7 @@ var GlyphSearch=React.createClass({
 			  onChange:this.onchange,onKeyPress:this.onkeypress}),
 			E("label",null,
 				E("input",{type:"checkbox",onChange:this.toggleSuccessor,value:this.state.successor})
-			,"子孫")
+			,"多層拆分")
 		);
 	}
 });

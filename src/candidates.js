@@ -3,6 +3,8 @@ var store=require("./store");
 var actions=require("./actions");
 var Reflux=require("reflux");
 var ucs2string=require("glyphemesearch").ucs2string;
+var getutf32=require("glyphemesearch").getutf32;
+var KageGlyph=require("./kageglyph");
 var E=React.createElement;
 
 var styles={candidates:{outline:0}};
@@ -10,14 +12,22 @@ var styles={candidates:{outline:0}};
 var Candidates=React.createClass({
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
-		return {candidates:[],joined:""};
+		return {candidates:[],joined:[]};
 	}
 	,joinCandidates:function(candidates) {
-		var o="";
+		var o=[];
 		for (var i=0;i<candidates.length;i++) {
-			o+=ucs2string(candidates[i]);
+			var style=undefined;
+			if (this.useKage(candidates[i])){
+				o.push(E(KageGlyph));
+			} else {
+				o.push(ucs2string(candidates[i]));				
+			}
 		}
 		return o;
+	}
+	,useKage:function(code) {
+		return getutf32({widestring:ucs2string(code)})>0x2A700;
 	}
 	,onData:function(data) {
 		this.setState({candidates:data,joined:this.joinCandidates(data)});
@@ -30,23 +40,14 @@ var Candidates=React.createClass({
 	}
 	,onselect:function(e) {
 		var sel=document.getSelection();
-		var off=sel.focusOffset;
-		if (off<0||off>=this.state.joined.length) return;
-		var bytes=1;
-		if (this.isHighSurrogate(this.state.joined.charCodeAt(off))) bytes++;
-
-		//select a char for easy copy to clipboard
-		var range = document.createRange();
-		range.setStart(sel.focusNode, off);
-		range.setEnd(sel.focusNode, off+bytes);
-		sel.removeAllRanges();
-		sel.addRange(range);
-
-		var selChar=this.state.joined.substr(off,bytes);
+		var selChar=sel.baseNode.data;
+		if (this.prevSelected) this.prevSelected.style.background="silver";
+		e.target.style.background="yellow";
+		this.prevSelected=e.target;
 		this.getGlyphInfo(selChar);
 	}
 	,render:function() {
-		return E("div",{ref:"candidates",
+		return E("span",{ref:"candidates",
 			onMouseUp:this.onselect,
 			style:styles.candidates},this.state.joined);
 	}
