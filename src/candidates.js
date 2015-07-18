@@ -17,17 +17,17 @@ var Candidates=React.createClass({
 	,joinCandidates:function(candidates) {
 		var o=[];
 		for (var i=0;i<candidates.length;i++) {
-			var style=undefined;
-			if (this.useKage(candidates[i])){
-				o.push(E(KageGlyph));
+			var glyph=ucs2string(candidates[i]);
+			if (this.useKage(glyph)){
+				o.push(E(KageGlyph,{glyph:glyph}));
 			} else {
-				o.push(ucs2string(candidates[i]));				
+				o.push(glyph);
 			}
 		}
 		return o;
 	}
-	,useKage:function(code) {
-		return getutf32({widestring:ucs2string(code)})>0x2A700;
+	,useKage:function(glyph) {
+		return getutf32({widestring:glyph})>0x2A700;
 	}
 	,onData:function(data) {
 		this.setState({candidates:data,joined:this.joinCandidates(data)});
@@ -40,7 +40,9 @@ var Candidates=React.createClass({
 	}
 	,onselect:function(e) {
 		var sel=document.getSelection();
-		var selChar=sel.baseNode.data;
+		var svglabel=sel.baseNode.parentNode.attributes["label"];
+		if (svglabel) svglabel=svglabel.value;
+		var selChar=svglabel||sel.baseNode.data;
 		if (this.prevSelected) this.prevSelected.style.background="silver";
 		e.target.style.background="yellow";
 		this.prevSelected=e.target;

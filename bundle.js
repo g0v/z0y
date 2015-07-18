@@ -13486,17 +13486,17 @@ var Candidates=React.createClass({displayName: "Candidates",
 	,joinCandidates:function(candidates) {
 		var o=[];
 		for (var i=0;i<candidates.length;i++) {
-			var style=undefined;
-			if (this.useKage(candidates[i])){
-				o.push(E(KageGlyph));
+			var glyph=ucs2string(candidates[i]);
+			if (this.useKage(glyph)){
+				o.push(E(KageGlyph,{glyph:glyph}));
 			} else {
-				o.push(ucs2string(candidates[i]));				
+				o.push(glyph);
 			}
 		}
 		return o;
 	}
-	,useKage:function(code) {
-		return getutf32({widestring:ucs2string(code)})>0x2A700;
+	,useKage:function(glyph) {
+		return getutf32({widestring:glyph})>0x2A700;
 	}
 	,onData:function(data) {
 		this.setState({candidates:data,joined:this.joinCandidates(data)});
@@ -13509,7 +13509,9 @@ var Candidates=React.createClass({displayName: "Candidates",
 	}
 	,onselect:function(e) {
 		var sel=document.getSelection();
-		var selChar=sel.baseNode.data;
+		var svglabel=sel.baseNode.parentNode.attributes["label"];
+		if (svglabel) svglabel=svglabel.value;
+		var selChar=svglabel||sel.baseNode.data;
 		if (this.prevSelected) this.prevSelected.style.background="silver";
 		e.target.style.background="yellow";
 		this.prevSelected=e.target;
@@ -13590,7 +13592,7 @@ module.exports=GlyphSearch;
 var Kage=require("kage").Kage;
 var Polygons=require("kage").Polygons;
 var React=require("react");
-var getutf32=require("glyphemesearch").getutf32;
+
 var mockdata=require("./mockdata");
 var glyphs=["u5361","u897f","u52a0","u6cb9"];
 
@@ -13601,7 +13603,10 @@ var pushmockdata=function(kage){
 }
 
 var KageGlyph=React.createClass({displayName: "KageGlyph",
-	render:function(){
+	propTypes:{
+		glyph:React.PropTypes.string.isRequired
+	}
+	,render:function(){
 		var kage = new Kage();
 		kage.kUseCurve = true;
 		var polygons = new Polygons();
@@ -13615,13 +13620,12 @@ var KageGlyph=React.createClass({displayName: "KageGlyph",
     opts.size=opts.size||32;
     svg=svg.replace('viewBox="0 0 200 200" width="200" height="200"',
       'background-color="transparent" viewBox="0 0 200 200" width="'+opts.size+'" height="'+opts.size+'"');
-
-		return React.createElement("span", {dangerouslySetInnerHTML: {__html:svg}})
+		return React.createElement("span", {label: this.props.glyph, dangerouslySetInnerHTML: {__html:svg}})
 	}
 });
 
 module.exports=KageGlyph;
-},{"./mockdata":"C:\\ksana2015\\z0y\\src\\mockdata.js","glyphemesearch":"C:\\ksana2015\\z0y\\node_modules\\glyphemesearch\\index.js","kage":"C:\\ksana2015\\z0y\\node_modules\\kage\\index.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\main.jsx":[function(require,module,exports){
+},{"./mockdata":"C:\\ksana2015\\z0y\\src\\mockdata.js","kage":"C:\\ksana2015\\z0y\\node_modules\\kage\\index.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\main.jsx":[function(require,module,exports){
 var React=require("react");
 var GlyphSearch=require("./glyphsearch");
 var GlyphInfo=require("./glyphinfo");
