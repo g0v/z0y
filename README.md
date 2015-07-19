@@ -1,7 +1,13 @@
 # z0y
-零時字引。漢字部件查詢
+零時字引。漢字部件查詢。
 
-線上使用 <http://rawgit.com/g0v/z0y/master/>
+線上使用 ONLINE DEMO <http://rawgit.com/g0v/z0y/master/>
+
+use glypheme to search CJK, including Extension A,B,C,D,E
+
+輸入：「木2」 ，找到所有含有「弗」的字，並且剩餘筆劃為 2
+
+深拆：「日月」，只會找到「明」，深拆才會找到「盟」「萌」。
 
 create node_modules/idsdata/decompose.js
 
