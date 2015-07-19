@@ -13626,7 +13626,7 @@ var GlyphSearch=React.createClass({displayName: "GlyphSearch",
 			  onChange:this.onchange,onKeyPress:this.onkeypress}),
 			E("label",null,
 				E("input",{type:"checkbox",onChange:this.toggleSuccessor,value:this.state.successor})
-			,"多層拆分")
+			,"深拆")
 		);
 	}
 });
