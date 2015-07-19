@@ -20,4 +20,15 @@ rebuild bundle.js if any other js is changed.
 
     build
 
-serve index.html with webserver, node-webkit , or open directly with browser (file://)
+to develop
+
+		npm i
+    watchify -o bundle.js index.js
+
+Serve index.html with webserver, node-webkit , or open directly with browser (file://)
+
+
+Extension C,D,E font is served by [CHIKAGE](https://github.com/g0v/chikage)
+
+[Slide](https://docs.google.com/presentation/d/16MzEnhGiWYH2e5WMudW6Sc49BTWDf1_aicbFMU9nSrU/edit?usp=sharing)
+

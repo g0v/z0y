@@ -1,7 +1,7 @@
 var Kage=require("kage").Kage;
 var Polygons=require("kage").Polygons;
 var React=require("react");
-
+var E=React.createElement;
 //var mockdata=require("./mockdata");
 //var glyphs=["u5361","u897f","u52a0","u6cb9"];
 var kage = new Kage();
@@ -26,7 +26,7 @@ var KageGlyph=React.createClass({
     size=this.props.size||32;
     svg=svg.replace('viewBox="0 0 200 200" width="200" height="200"',
       'background-color="transparent" viewBox="0 0 200 200" width="'+size+'" height="'+size+'"');
-		return <span label={this.props.glyph} dangerouslySetInnerHTML={{__html:svg}}/>
+		return E("span",{label:this.props.glyph, dangerouslySetInnerHTML:{__html:svg}});
 	}
 });
 KageGlyph.loadBuhins=loadBuhins;
