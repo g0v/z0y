@@ -3,7 +3,7 @@ var actions=require("./actions");
 
 var E=React.createElement;
 var styles={
-	logo:{fontSize:"150%"},
+	logo:{fontSize:"150%",textDecoration:"none"},
 	tofind:{fontSize:"200%"}
 }
 var GlyphSearch=React.createClass({
@@ -39,7 +39,7 @@ var GlyphSearch=React.createClass({
 	}
 	,render:function() {
 		return E("div",{},
-			E("span",{style:styles.logo},"零時字引"),
+			E("a",{style:styles.logo,href:"https://github.com/g0v/z0y"},"零時字引"),
 			E("input",{ref:"tofind",size:3,style:styles.tofind, value:this.state.tofind,
 			  onChange:this.onchange,onKeyPress:this.onkeypress}),
 			E("label",null,

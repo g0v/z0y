@@ -8,10 +8,12 @@ var GlyphInfo=React.createClass({
 	render:function() {
 		var glyph=this.props.glyph;
 		var utf32=getutf32({widestring:glyph});
-		var c="U+"+utf32.toString(16).toUpperCase();
-
+		var codepoint=utf32.toString(16).toUpperCase();
+		var unihan="http://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint="+codepoint;
 		if (this.useKage(utf32)) glyph=<KageGlyph size={100} glyph={"u"+utf32.toString(16)}/> ;
-		return E("div",{},c,E("span",{style:styles.thechar},glyph));
+		return E("div",{},
+			E("a",{target:"_new",title:"Unihan",href:unihan},"U+"+codepoint),
+			E("span",{style:styles.thechar},glyph));
 	}
 	,useKage:function(uni) {
 		return uni>0x2A700;
