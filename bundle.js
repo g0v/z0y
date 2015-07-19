@@ -2071,7 +2071,7 @@ var gsearch=function(wh,successor) {
 	var partstroke=0;
 	for (var i=0;i<glypheme.length;i++) {
 		partstroke+=strokecount(glypheme[i]);
-		if (prev===glypheme[i]) { // for search repeated part
+		if (prev===glypheme[i]) { // for searching repeated part
 		   derived=remove_once(derived);
 		} else {
 		   derived=getderived(glypheme[i],successor );
@@ -13477,21 +13477,49 @@ var KageGlyph=require("./kageglyph");
 var E=React.createElement;
 
 var styles={candidates:{outline:0}};
+var fontserverurl="http://chikage.linode.caasih.net/exploded/?inputs=";
 
 var Candidates=React.createClass({displayName: "Candidates",
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
 		return {candidates:[],joined:[]};
 	}
-	,joinCandidates:function(candidates) {
+	,fontcache:{} //buhins already in memory
+	,loading:[] //loading buhins
+	,load:function(reader) {
+		var that=this;
+		return reader.read().then(function (result) {
+			var str = String.fromCharCode.apply(null, result.value);
+			var json=JSON.parse(str);
+			KageGlyph.loadBuhins(json);
+			that.loading.forEach(function(glyph){that.fontcache[glyph]=true});
+			that.loading=[];
+			that.fontdataready=true;
+			that.setState({candidates:that.renderCandidates(that.state.searchresult)});
+		});
+	}
+	,loadFromServer:function() {
+		var url=fontserverurl+this.loading.join("");
+		fetch(url).then(function(response){
+			return this.load(response.body.getReader());
+		}.bind(this));
+	}
+	,renderCandidates:function(searchresult) {
 		var o=[];
-		for (var i=0;i<candidates.length;i++) {
-			var glyph=ucs2string(candidates[i]);
+		for (var i=0;i<searchresult.length;i++) {
+			var glyph=ucs2string(searchresult[i]);
 			if (this.useKage(glyph)){
-				o.push(E(KageGlyph,{glyph:glyph}));
+				if (this.fontcache[glyph]) {
+					o.push(E(KageGlyph,{key:i,glyph:"u"+searchresult[i].toString(16)}));
+				} else {
+					this.loading.push(glyph);
+				}
 			} else {
 				o.push(glyph);
 			}
+		}
+		if (this.loading.length) {
+			this.loadFromServer();
 		}
 		return o;
 	}
@@ -13499,7 +13527,8 @@ var Candidates=React.createClass({displayName: "Candidates",
 		return getutf32({widestring:glyph})>0x2A700;
 	}
 	,onData:function(data) {
-		this.setState({candidates:data,joined:this.joinCandidates(data)});
+		this.fontdataready=false;
+		this.setState({searchresult:data,candidates:this.renderCandidates(data)});
 	}
 	,isHighSurrogate:function(code) {
 		return code>=0xD800 && code<=0xDBFF;
@@ -13508,19 +13537,22 @@ var Candidates=React.createClass({displayName: "Candidates",
 		this.props.action("selectglyph",glyph);
 	}
 	,onselect:function(e) {
-		var sel=document.getSelection();
-		var svglabel=sel.baseNode.parentNode.attributes["label"];
-		if (svglabel) svglabel=svglabel.value;
-		var selChar=svglabel||sel.baseNode.data;
-		if (this.prevSelected) this.prevSelected.style.background="silver";
-		e.target.style.background="yellow";
-		this.prevSelected=e.target;
-		this.getGlyphInfo(selChar);
+		var svglabel=e.target.parentNode.attributes["label"];
+		if (svglabel) svglabel=ucs2string(parseInt("0x"+svglabel.value.substr(1)));
+
+		var selChar=svglabel||e.target.innerText;
+		
+		if (selChar) {
+			if (this.prevSelected) this.prevSelected.style.background="silver";
+			e.target.style.background="yellow";
+			this.prevSelected=e.target;
+			this.getGlyphInfo(selChar);
+		}
 	}
 	,render:function() {
 		return E("span",{ref:"candidates",
 			onMouseUp:this.onselect,
-			style:styles.candidates},this.state.joined);
+			style:styles.candidates},this.state.candidates);
 	}
 });
 module.exports=Candidates;
@@ -13529,14 +13561,23 @@ var React=require("react");
 var getutf32=require("glyphemesearch").getutf32;
 var E=React.createElement;
 var styles={thechar:{fontSize:"300%"}};
+var KageGlyph=require("./kageglyph");
+
 var GlyphInfo=React.createClass({displayName: "GlyphInfo",
 	render:function() {
-		var c="U+"+getutf32({widestring:this.props.glyph}).toString(16).toUpperCase();
-		return E("div",{},c,E("span",{style:styles.thechar},this.props.glyph));
+		var glyph=this.props.glyph;
+		var utf32=getutf32({widestring:glyph});
+		var c="U+"+utf32.toString(16).toUpperCase();
+
+		if (this.useKage(utf32)) glyph=React.createElement(KageGlyph, {size: 100, glyph: "u"+utf32.toString(16)}) ;
+		return E("div",{},c,E("span",{style:styles.thechar},glyph));
+	}
+	,useKage:function(uni) {
+		return uni>0x2A700;
 	}
 });
 module.exports=GlyphInfo;
-},{"glyphemesearch":"C:\\ksana2015\\z0y\\node_modules\\glyphemesearch\\index.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\glyphsearch.js":[function(require,module,exports){
+},{"./kageglyph":"C:\\ksana2015\\z0y\\src\\kageglyph.js","glyphemesearch":"C:\\ksana2015\\z0y\\node_modules\\glyphemesearch\\index.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\glyphsearch.js":[function(require,module,exports){
 var React=require("react");
 var actions=require("./actions");
 
@@ -13547,7 +13588,7 @@ var styles={
 }
 var GlyphSearch=React.createClass({displayName: "GlyphSearch",
 	getInitialState:function() {
-		return {successor:false,tofind:"木口"};
+		return {successor:false,tofind:"地"};
 	}
 	,dosearch:function(){
 		actions.search(this.state.tofind,this.state.successor);
@@ -13593,39 +13634,36 @@ var Kage=require("kage").Kage;
 var Polygons=require("kage").Polygons;
 var React=require("react");
 
-var mockdata=require("./mockdata");
-var glyphs=["u5361","u897f","u52a0","u6cb9"];
+//var mockdata=require("./mockdata");
+//var glyphs=["u5361","u897f","u52a0","u6cb9"];
+var kage = new Kage();
+kage.kUseCurve = true;
 
-var pushmockdata=function(kage){
-	for (var buhin in mockdata) {
-		kage.kBuhin.push(buhin,mockdata[buhin]);
+var loadBuhins=function(fromserver){
+	for (var buhin in fromserver) {
+		kage.kBuhin.push(buhin,fromserver[buhin]);
 	}
 }
-
 var KageGlyph=React.createClass({displayName: "KageGlyph",
 	propTypes:{
 		glyph:React.PropTypes.string.isRequired
+		,size:React.PropTypes.number
 	}
 	,render:function(){
-		var kage = new Kage();
-		kage.kUseCurve = true;
 		var polygons = new Polygons();
-		pushmockdata(kage);
-		var glyph=glyphs[ Math.floor(Math.random()*glyphs.length)];
-		kage.makeGlyph(polygons,  glyph);
+		kage.makeGlyph(polygons, this.props.glyph);
     var svg=polygons.generateSVG(true);
 
       //viewBox="0 0 200 200" width="200" height="200"
-    var opts={};
-    opts.size=opts.size||32;
+    size=this.props.size||32;
     svg=svg.replace('viewBox="0 0 200 200" width="200" height="200"',
-      'background-color="transparent" viewBox="0 0 200 200" width="'+opts.size+'" height="'+opts.size+'"');
+      'background-color="transparent" viewBox="0 0 200 200" width="'+size+'" height="'+size+'"');
 		return React.createElement("span", {label: this.props.glyph, dangerouslySetInnerHTML: {__html:svg}})
 	}
 });
-
+KageGlyph.loadBuhins=loadBuhins;
 module.exports=KageGlyph;
-},{"./mockdata":"C:\\ksana2015\\z0y\\src\\mockdata.js","kage":"C:\\ksana2015\\z0y\\node_modules\\kage\\index.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\main.jsx":[function(require,module,exports){
+},{"kage":"C:\\ksana2015\\z0y\\node_modules\\kage\\index.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\main.jsx":[function(require,module,exports){
 var React=require("react");
 var GlyphSearch=require("./glyphsearch");
 var GlyphInfo=require("./glyphinfo");
@@ -13650,24 +13688,7 @@ var maincomponent = React.createClass({displayName: "maincomponent",
   }
 });
 module.exports=maincomponent;
-},{"./candidates":"C:\\ksana2015\\z0y\\src\\candidates.js","./glyphinfo":"C:\\ksana2015\\z0y\\src\\glyphinfo.js","./glyphsearch":"C:\\ksana2015\\z0y\\src\\glyphsearch.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\mockdata.js":[function(require,module,exports){
-
-module.exports={
-	//卡
-	"u5361":"1:0:32:96:14:96:95$1:2:0:96:51:172:51$1:0:0:16:95:184:95$1:0:0:96:99:96:186$2:7:8:96:118:137:132:159:154"
-	//西
-	,"u897f":"1:0:0:17:33:183:33$7:32:7:80:33:80:80:80:128:44:144$3:32:5:117:33:117:122:149:122$99:0:0:12:52:188:188:u56d7:0:0:0"
-	,"u56d7":"1:12:13:30:28:30:173$1:2:2:30:28:171:28$1:22:23:171:28:171:173$1:2:2:30:173:171:173"
-	//加
-	,"u52a0":"1:0:2:18:56:91:56$2:22:4:91:56:93:154:76:180$7:0:7:53:16:53:64:53:156:13:188$99:0:0:103:-3:189:218:u53e3"
-	,"u53e3":"1:12:13:42:46:42:154$1:2:2:42:46:158:46$1:22:23:158:46:158:154$1:2:2:42:154:158:154"
-	//油
-	,"u6cb9":"99:0:0:2:0:170:200:u6c35-01$99:0:0:70:0:193:200:u7531-07"
-	,"u6c35-01":"2:7:8:31:20:56:27:67:41$2:7:8:12:66:39:73:49:87$2:7:8:14:133:49:142:45:184$2:32:7:40:150:44:138:86:67"
-	,"u7531-07":"1:12:13:27:62:27:169$1:2:2:27:62:173:62$1:22:23:173:62:173:169$1:2:2:27:113:173:113$1:0:32:100:15:100:169$1:2:2:27:169:173:169"
-}
-
-},{}],"C:\\ksana2015\\z0y\\src\\store.js":[function(require,module,exports){
+},{"./candidates":"C:\\ksana2015\\z0y\\src\\candidates.js","./glyphinfo":"C:\\ksana2015\\z0y\\src\\glyphinfo.js","./glyphsearch":"C:\\ksana2015\\z0y\\src\\glyphsearch.js","react":"react"}],"C:\\ksana2015\\z0y\\src\\store.js":[function(require,module,exports){
 var Reflux=require("reflux");
 var actions=require("./actions");
 var glyphemesearch=require("glyphemesearch");

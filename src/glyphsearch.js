@@ -8,7 +8,7 @@ var styles={
 }
 var GlyphSearch=React.createClass({
 	getInitialState:function() {
-		return {successor:false,tofind:"木口"};
+		return {successor:false,tofind:"地"};
 	}
 	,dosearch:function(){
 		actions.search(this.state.tofind,this.state.successor);

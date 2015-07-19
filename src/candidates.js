@@ -8,21 +8,49 @@ var KageGlyph=require("./kageglyph");
 var E=React.createElement;
 
 var styles={candidates:{outline:0}};
+var fontserverurl="http://chikage.linode.caasih.net/exploded/?inputs=";
 
 var Candidates=React.createClass({
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
 		return {candidates:[],joined:[]};
 	}
-	,joinCandidates:function(candidates) {
+	,fontcache:{} //buhins already in memory
+	,loading:[] //loading buhins
+	,load:function(reader) {
+		var that=this;
+		return reader.read().then(function (result) {
+			var str = String.fromCharCode.apply(null, result.value);
+			var json=JSON.parse(str);
+			KageGlyph.loadBuhins(json);
+			that.loading.forEach(function(glyph){that.fontcache[glyph]=true});
+			that.loading=[];
+			that.fontdataready=true;
+			that.setState({candidates:that.renderCandidates(that.state.searchresult)});
+		});
+	}
+	,loadFromServer:function() {
+		var url=fontserverurl+this.loading.join("");
+		fetch(url).then(function(response){
+			return this.load(response.body.getReader());
+		}.bind(this));
+	}
+	,renderCandidates:function(searchresult) {
 		var o=[];
-		for (var i=0;i<candidates.length;i++) {
-			var glyph=ucs2string(candidates[i]);
+		for (var i=0;i<searchresult.length;i++) {
+			var glyph=ucs2string(searchresult[i]);
 			if (this.useKage(glyph)){
-				o.push(E(KageGlyph,{glyph:glyph}));
+				if (this.fontcache[glyph]) {
+					o.push(E(KageGlyph,{key:i,glyph:"u"+searchresult[i].toString(16)}));
+				} else {
+					this.loading.push(glyph);
+				}
 			} else {
 				o.push(glyph);
 			}
+		}
+		if (this.loading.length) {
+			this.loadFromServer();
 		}
 		return o;
 	}
@@ -30,7 +58,8 @@ var Candidates=React.createClass({
 		return getutf32({widestring:glyph})>0x2A700;
 	}
 	,onData:function(data) {
-		this.setState({candidates:data,joined:this.joinCandidates(data)});
+		this.fontdataready=false;
+		this.setState({searchresult:data,candidates:this.renderCandidates(data)});
 	}
 	,isHighSurrogate:function(code) {
 		return code>=0xD800 && code<=0xDBFF;
@@ -39,19 +68,22 @@ var Candidates=React.createClass({
 		this.props.action("selectglyph",glyph);
 	}
 	,onselect:function(e) {
-		var sel=document.getSelection();
-		var svglabel=sel.baseNode.parentNode.attributes["label"];
-		if (svglabel) svglabel=svglabel.value;
-		var selChar=svglabel||sel.baseNode.data;
-		if (this.prevSelected) this.prevSelected.style.background="silver";
-		e.target.style.background="yellow";
-		this.prevSelected=e.target;
-		this.getGlyphInfo(selChar);
+		var svglabel=e.target.parentNode.attributes["label"];
+		if (svglabel) svglabel=ucs2string(parseInt("0x"+svglabel.value.substr(1)));
+
+		var selChar=svglabel||e.target.innerText;
+		
+		if (selChar) {
+			if (this.prevSelected) this.prevSelected.style.background="silver";
+			e.target.style.background="yellow";
+			this.prevSelected=e.target;
+			this.getGlyphInfo(selChar);
+		}
 	}
 	,render:function() {
 		return E("span",{ref:"candidates",
 			onMouseUp:this.onselect,
-			style:styles.candidates},this.state.joined);
+			style:styles.candidates},this.state.candidates);
 	}
 });
 module.exports=Candidates;
