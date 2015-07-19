@@ -8,7 +8,7 @@ Use glypheme to search CJK, including Extension A,B,C,D,E, dynamically generated
 
 深拆：「日月」，只會找到「明」，深拆才會找到「盟」「萌」。
 
-[Slide in 萌典松 2015/7/19](https://docs.google.com/presentation/d/16MzEnhGiWYH2e5WMudW6Sc49BTWDf1_aicbFMU9nSrU/edit?usp=sharing)
+[Slide in 萌典松 2015/7/18](https://docs.google.com/presentation/d/16MzEnhGiWYH2e5WMudW6Sc49BTWDf1_aicbFMU9nSrU/edit?usp=sharing)
 
 create node_modules/idsdata/decompose.js
 
@@ -29,7 +29,7 @@ rebuild bundle.js if any other js is changed.
 
 to develop
 
-		npm i
+    npm i
     watchify -o bundle.js index.js
 
 Serve index.html with webserver, node-webkit , or open directly with browser (file://)
