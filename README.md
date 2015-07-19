@@ -1,9 +1,8 @@
-# z0y
-零時字引。漢字部件查詢。
+# 零時字引－部件筆劃查字
 
 線上使用 ONLINE DEMO <http://rawgit.com/g0v/z0y/master/>
 
-use glypheme to search CJK, including Extension A,B,C,D,E
+Use glypheme to search CJK, including Extension A,B,C,D,E, dynamically generated font is served by [CHIKAGE](https://github.com/g0v/chikage)
 
 輸入：「木2」 ，找到所有含有「弗」的字，並且剩餘筆劃為 2
 
@@ -35,8 +34,6 @@ to develop
 
 Serve index.html with webserver, node-webkit , or open directly with browser (file://)
 
-
-Extension C,D,E font is served by [CHIKAGE](https://github.com/g0v/chikage)
 
 
 
