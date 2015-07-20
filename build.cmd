@@ -1,1 +1,1 @@
-browserify index.js > bundle.js
+browserify --bare -u react -u react/addons -u idsdata -u bootstrap  index.js > bundle.js
