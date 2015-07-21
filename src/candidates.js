@@ -7,9 +7,11 @@ var getutf32=require("glyphemesearch").getutf32;
 var KageGlyph=require("./kageglyph");
 var E=React.createElement;
 var useKage=require("./usekage");
-var styles={candidates:{outline:0}};
+var styles={candidates:{outline:0,cursor:"pointer"}};
 var fontserverurl="http://chikage.linode.caasih.net/exploded/?inputs=";
-require("whatwg-fetch");
+
+//window.Promise=require("promise-polyfill");
+//require("whatwg-fetch");
 var Candidates=React.createClass({
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
@@ -80,7 +82,7 @@ var Candidates=React.createClass({
 	}
 	,render:function() {
 		return E("span",{ref:"candidates",
-			onMouseUp:this.onselect,
+			onMouseUp:this.onselect,onTouchTap:this.onselect,
 			style:styles.candidates},this.state.candidates);
 	}
 });
