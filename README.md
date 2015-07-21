@@ -1,6 +1,6 @@
 # 零時字引－部件筆劃查字
 
-線上使用 ONLINE DEMO <http://rawgit.com/g0v/z0y/master/>
+線上使用 ONLINE DEMO <http://cdn.rawgit.com/g0v/z0y/master/>
 
 Use glypheme to search CJK, including Extension A,B,C,D,E, dynamically generated font is served by [CHIKAGE](https://github.com/g0v/chikage)
 
@@ -30,7 +30,7 @@ rebuild bundle.js if any other js is changed.
 to develop
 
     npm i
-    watchify -o bundle.js index.js
+    watchify --bare -u react -u react/addons -u idsdata -o bundle.js index.js
 
 Serve index.html with webserver, node-webkit , or open directly with browser (file://)
 
