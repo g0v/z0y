@@ -6,10 +6,10 @@ var ucs2string=require("glyphemesearch").ucs2string;
 var getutf32=require("glyphemesearch").getutf32;
 var KageGlyph=require("./kageglyph");
 var E=React.createElement;
-
+var useKage=require("./usekage");
 var styles={candidates:{outline:0}};
 var fontserverurl="http://chikage.linode.caasih.net/exploded/?inputs=";
-
+require("whatwg-fetch");
 var Candidates=React.createClass({
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
@@ -39,7 +39,7 @@ var Candidates=React.createClass({
 		var o=[];
 		for (var i=0;i<searchresult.length;i++) {
 			var glyph=ucs2string(searchresult[i]);
-			if (this.useKage(glyph)){
+			if (useKage(searchresult[i])){
 				if (this.fontcache[glyph]) {
 					o.push(E(KageGlyph,{key:i,glyph:"u"+searchresult[i].toString(16)}));
 				} else {
@@ -54,9 +54,7 @@ var Candidates=React.createClass({
 		}
 		return o;
 	}
-	,useKage:function(glyph) {
-		return getutf32({widestring:glyph})>0x2A700;
-	}
+
 	,onData:function(data) {
 		this.fontdataready=false;
 		this.setState({searchresult:data,candidates:this.renderCandidates(data)});

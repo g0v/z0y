@@ -3,8 +3,8 @@
   "description": "glyphemesearch",
   "version": "0.0.1",
   "main": "index.html",
-  "inject-js-start":"nwmain.js",
-  "single-instance":true,
+  "inject-js-start": "nwmain.js",
+  "single-instance": true,
   "window": {
     "toolbar": true,
     "width": 1060,
@@ -12,16 +12,15 @@
   },
   "dependencies": {
     "react": "*",
-    "reflux": "*"
+    "reflux": "*",
+    "whatwg-fetch": "^0.9.0"
   },
   "devDependencies": {
     "browserify": "*"
   },
-  "scripts" : {
-  },
- "repository": 
-  {
-      "type": "git", 
-      "url": "https://github.com/g0v/z0y"
-  }  
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/g0v/z0y"
+  }
 }
