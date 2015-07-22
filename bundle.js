@@ -4819,17 +4819,32 @@ var Candidates=React.createClass({displayName: "Candidates",
 	}
 	,fontcache:{} //buhins already in memory
 	,loading:[] //loading buhins
+
 	,load:function(reader) {
 		var that=this;
-		return reader.read().then(function (result) {
-			var str = String.fromCharCode.apply(null, result.value);
-			var json=JSON.parse(str);
-			KageGlyph.loadBuhins(json);
-			that.loading.forEach(function(glyph){that.fontcache[glyph]=true});
-			that.loading=[];
-			that.fontdataready=true;
-			that.setState({candidates:that.renderCandidates(that.state.searchresult)});
-		});
+		var chunks=[];
+
+		var pump=function(){
+			return reader.read().then(function (result) {
+
+				if (result.done) {
+					var json=JSON.parse(chunks.join(""));
+					KageGlyph.loadBuhins(json);
+					that.loading.forEach(function(glyph){that.fontcache[glyph]=true});
+					that.loading=[];
+					that.fontdataready=true;
+					that.setState({candidates:that.renderCandidates(that.state.searchresult)});
+					return;
+				}
+
+				var str = String.fromCharCode.apply(null, result.value );
+				chunks.push(str);
+				return pump();
+			});			
+		}
+
+		return pump();
+
 	}
 	,loadFromServer:function() {
 		var url=fontserverurl+this.loading.join("");
