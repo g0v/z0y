@@ -28,9 +28,12 @@ var Candidates=React.createClass({
 			return reader.read().then(function (result) {
 
 				if (result.done) {
-					var json=JSON.parse(chunks.join(""));
+					var json=JSON.parse(chunks.join("").replace(/@\d+/g,"")); //workaround @n at the end
 					KageGlyph.loadBuhins(json);
-					that.loading.forEach(function(glyph){that.fontcache[glyph]=true});
+					that.loading.forEach(function(glyph){
+						console.log(glyph);
+						that.fontcache[glyph]=true
+					});
 					that.loading=[];
 					that.fontdataready=true;
 					that.setState({candidates:that.renderCandidates(that.state.searchresult)});

@@ -6,12 +6,13 @@ var E=React.createElement;
 //var glyphs=["u5361","u897f","u52a0","u6cb9"];
 var kage = new Kage();
 kage.kUseCurve = true;
-
 var loadBuhins=function(fromserver){
 	for (var buhin in fromserver) {
 		kage.kBuhin.push(buhin,fromserver[buhin]);
 	}
 }
+//loadBuhins(mockdata);
+
 var KageGlyph=React.createClass({
 	propTypes:{
 		glyph:React.PropTypes.string.isRequired
@@ -19,7 +20,9 @@ var KageGlyph=React.createClass({
 	}
 	,render:function(){
 		var polygons = new Polygons();
-		kage.makeGlyph(polygons, this.props.glyph);
+		var glyph=this.props.glyph;
+		//glyph="u2b101"
+		kage.makeGlyph(polygons, glyph);
     var svg=polygons.generateSVG(true);
 
       //viewBox="0 0 200 200" width="200" height="200"

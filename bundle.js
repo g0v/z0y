@@ -4828,9 +4828,12 @@ var Candidates=React.createClass({displayName: "Candidates",
 			return reader.read().then(function (result) {
 
 				if (result.done) {
-					var json=JSON.parse(chunks.join(""));
+					var json=JSON.parse(chunks.join("").replace(/@\d+/g,"")); //workaround @n at the end
 					KageGlyph.loadBuhins(json);
-					that.loading.forEach(function(glyph){that.fontcache[glyph]=true});
+					that.loading.forEach(function(glyph){
+						console.log(glyph);
+						that.fontcache[glyph]=true
+					});
 					that.loading=[];
 					that.fontdataready=true;
 					that.setState({candidates:that.renderCandidates(that.state.searchresult)});
@@ -4986,12 +4989,13 @@ var E=React.createElement;
 //var glyphs=["u5361","u897f","u52a0","u6cb9"];
 var kage = new Kage();
 kage.kUseCurve = true;
-
 var loadBuhins=function(fromserver){
 	for (var buhin in fromserver) {
 		kage.kBuhin.push(buhin,fromserver[buhin]);
 	}
 }
+//loadBuhins(mockdata);
+
 var KageGlyph=React.createClass({displayName: "KageGlyph",
 	propTypes:{
 		glyph:React.PropTypes.string.isRequired
@@ -4999,7 +5003,9 @@ var KageGlyph=React.createClass({displayName: "KageGlyph",
 	}
 	,render:function(){
 		var polygons = new Polygons();
-		kage.makeGlyph(polygons, this.props.glyph);
+		var glyph=this.props.glyph;
+		//glyph="u2b101"
+		kage.makeGlyph(polygons, glyph);
     var svg=polygons.generateSVG(true);
 
       //viewBox="0 0 200 200" width="200" height="200"
