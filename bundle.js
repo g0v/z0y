@@ -4939,10 +4939,11 @@ var styles={
 }
 var GlyphSearch=React.createClass({displayName: "GlyphSearch",
 	getInitialState:function() {
-		return {successor:false,tofind:"地"};
+		return {successor:false,tofind:localStorage.getItem("z0y_tofind")||"木口"};
 	}
 	,dosearch:function(){
 		actions.search(this.state.tofind,this.state.successor);
+		localStorage.setItem("z0y_tofind",this.state.tofind);
 	}
 	,onchange:function(e){
 		clearTimeout(this.timer);
