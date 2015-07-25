@@ -11,7 +11,7 @@ var styles={candidates:{outline:0,cursor:"pointer"}};
 var fontserverurl="http://chikage.linode.caasih.net/exploded/?inputs=";
 
 //window.Promise=require("promise-polyfill");
-//require("whatwg-fetch");
+require("whatwg-fetch");
 var Candidates=React.createClass({
 	mixins:[Reflux.listenTo(store,"onData")]
 	,getInitialState:function(){
@@ -20,40 +20,30 @@ var Candidates=React.createClass({
 	,fontcache:{} //buhins already in memory
 	,loading:[] //loading buhins
 
-	,load:function(reader) {
-		var that=this;
-		var chunks=[];
+	,load:function(buhins) {
+		var that = this;
+		var data = {};
+		var k;
 
-		var pump=function(){
-			return reader.read().then(function (result) {
-
-				if (result.done) {
-					var json=JSON.parse(chunks.join("").replace(/@\d+/g,"")); //workaround @n at the end
-					KageGlyph.loadBuhins(json);
-					that.loading.forEach(function(glyph){
-						console.log(glyph);
-						that.fontcache[glyph]=true
-					});
-					that.loading=[];
-					that.fontdataready=true;
-					that.setState({candidates:that.renderCandidates(that.state.searchresult)});
-					return;
-				}
-
-				var str = String.fromCharCode.apply(null, result.value );
-				chunks.push(str);
-				return pump();
-			});			
+		for (k in buhins) {
+			data[k] = buhins[k].replace(/@\d+/g, ""); //workaround @n at the end
 		}
+		KageGlyph.loadBuhins(data);
+		this.loading.forEach(function(glyph){
+			console.log(glyph);
+			that.fontcache[glyph]=true
+		});
+		this.loading=[];
+		this.fontdataready=true;
+		this.setState({candidates:this.renderCandidates(this.state.searchresult)});
 
-		return pump();
-
+		return;
 	}
 	,loadFromServer:function() {
 		var url=fontserverurl+this.loading.join("");
-		fetch(url).then(function(response){
-			return this.load(response.body.getReader());
-		}.bind(this));
+		fetch(url)
+			.then(function(response){ return response.json(); })
+			.then(this.load);
 	}
 	,renderCandidates:function(searchresult) {
 		var o=[];

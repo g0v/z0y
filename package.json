@@ -11,8 +11,8 @@
     "height": 700
   },
   "dependencies": {
-    "react": "*",
-    "reflux": "*",
+    "react": "^0.13.3",
+    "reflux": "^0.2.11",
     "whatwg-fetch": "^0.9.0"
   },
   "devDependencies": {
