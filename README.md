@@ -1,6 +1,6 @@
 # 零時字引－部件筆劃查字
 
-線上使用 ONLINE DEMO <http://cdn.rawgit.com/g0v/z0y/master/>
+線上使用 ONLINE DEMO <http://cdn.rawgit.com/g0v/z0y/v1/>
 
 Use glypheme to search CJK, including Extension A,B,C,D,E, dynamically generated font is served by [CHIKAGE](https://github.com/g0v/chikage)
 
