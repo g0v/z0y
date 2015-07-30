@@ -4,7 +4,7 @@
 
 Use glypheme to search CJK, including Extension A,B,C,D,E, dynamically generated font is served by [CHIKAGE](https://github.com/g0v/chikage)
 
-輸入：「木2」 ，找到所有含有「弗」的字，並且剩餘筆劃為 2
+輸入：「木2」 ，找到所有含有「木」的字，並且剩餘筆劃為 2
 
 深拆：「日月」，只會找到「明」，深拆才會找到「盟」「萌」。
 
